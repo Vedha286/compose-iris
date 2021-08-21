@@ -35,37 +35,31 @@ class StarTrainModify:
     def values(self):
         return [self.Temperature, self.Relative_luminosity, self.Relative_radius, self.Absolute_magnitude, self.Color, self.Spectral_class]
 
-
-# define the class encodings and reverse encodings
-classes = {0: "Iris Setosa", 1: "Iris Versicolour", 2: "Iris Virginica"}
-r_classes = {y: x for x, y in classes.items()}
+stars_model_file = ".models/stars_nb.pkl"
 
 # function to train and load the model during startup
 def init_models():
-    init_model()
+    if not os.path.isfile(stars_model_file):
+        open(stars_model_file, 'w+')
     init_stars_model()
-
-def init_model():
-    if not os.path.isfile(".models/iris_nb.pkl"):
-        clf = GaussianNB()
-        pickle.dump(clf, open(".models/iris_nb.pkl", "wb"))
-        print("initilized and saved iris model")
-
 
 def init_stars_model():
     
-    if not os.path.isfile(".models/stars_nb.pkl"):
+    if not os.path.isfile(stars_model_file):
         data = download_data()
         X_train, X_test, y_train, y_test = prepare_data(data.itertuples(index=True))
  
         clf = GaussianNB()
+        open(stars_model_file, "w+").close()
+        pickle.dump(clf, open(stars_model_file, "w+"))
+        
         clf.fit(X_train, y_train)
         if len(data) > 10:
             accuracy = accuracy_score(y_test, clf.predict(X_test))
             print(f"Accuracy: " + str(accuracy))
 
 
-        pickle.dump(clf, open(".models/stars_nb.pkl", "wb"))
+        pickle.dump(clf, open(stars_model_file, "wb"))
         print("initilized and saved stars model")
     
 
@@ -89,28 +83,11 @@ def prepare_data(data):
         return X_train, X_test, y_train, y_test
     else: 
         return X, [], y, []
-# function to train and save the model as part of the feedback loop
-def train_model(data):
-    # load the model
-    clf = pickle.load(open(".models/iris_nb.pkl", "rb"))
-    print(data)
-
-    # pull out the relevant X and y from the FeedbackIn object
-    X = [list(d.dict().values()) for d in data]
-    y = [r_classes[d.flower_class] for d in data]
-
-    # fit the classifier again based on the new data obtained
-    clf.fit(X, y)
-
-    # save the model
-    pickle.dump(clf, open(".models/iris_nb.pkl", "wb"))
-
-
 
 # function to train and save the model as part of the feedback loop
 def train_model_stars(data: List[StarTrainIn]):
     # load the model
-    clf = pickle.load(open(".models/stars_nb.pkl", "rb"))
+    clf = pickle.load(open(stars_model_file, "rb"))
     X_train, X_test, y_train, y_test = prepare_data(data)
  
     clf.fit(X_train, y_train)
@@ -120,7 +97,7 @@ def train_model_stars(data: List[StarTrainIn]):
 
     # save the model
     print("done")
-    pickle.dump(clf, open(".models/stars_nb.pkl", "wb"))
+    pickle.dump(clf, open(stars_model_file, "wb"))
     return
 
 def substituteStars(df):

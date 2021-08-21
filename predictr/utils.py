@@ -11,23 +11,12 @@ clf = GaussianNB()
 
 # function to train and load the model during startup
 def init_models():
-    init_model()
     init_stars_model()
-
-# function to load the model
-def load_model():
-    global clf
-    clf = pickle.load(open(".models/iris_nb.pkl", "rb"))
 
 def init_stars_model():
     global clf_stars_score
     clf_stars_score = pickle.load(open(".models/stars_nb.pkl", "rb"))
 
-# function to predict the flower using the model
-def predict(query_data):
-    x = list(query_data.dict().values())
-    prediction = clf.predict([x])[0]
-    return classes[prediction]
 
 # function to predict the flower using the model
 def predict_stars(query_data):

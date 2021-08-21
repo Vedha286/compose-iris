@@ -4,7 +4,7 @@ import requests
 from typing import List
 from fastapi import FastAPI
 from pydantic import BaseModel
-from utils import process_data
+from utils import process_stars_data
 
 TRAINR_ENDPOINT = os.getenv("TRAINR_ENDPOINT")
 
@@ -12,13 +12,6 @@ TRAINR_ENDPOINT = os.getenv("TRAINR_ENDPOINT")
 app = FastAPI(title="processr", docs_url="/")
 
 # class which is expected in the payload while training
-class DataIn(BaseModel):
-    sepal_length: float
-    sepal_width: float
-    petal_length: float
-    petal_width: float
-    flower_class: str
-
 
 class StarTrainIn(BaseModel):
   Temperature: float
@@ -36,19 +29,10 @@ def ping():
     return {"ping": "pong"}
 
 
-@app.post("/process", status_code=200)
-# Route to take in data, process it and send it for training.
-def process(data: List[DataIn]):
-    processed = process_data(data)
-    # send the processed data to trainr for training
-    response = requests.post(f"{TRAINR_ENDPOINT}/train", json=processed)
-    return {"detail": "Processing successful"}
-
-
 @app.post("/stars/process", status_code=200)
 # Route to take in data, process it and send it for training.
-def process(data: List[DataIn]):
-    processed = process_data(data)
+def process(data: List[StarTrainIn]):
+    processed = process_stars_data(data)
     # send the processed data to trainr for training
     response = requests.post(f"{TRAINR_ENDPOINT}/train", json=processed)
     return {"detail": "Processing successful"}

@@ -3,7 +3,7 @@ import os
 import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
-from utils import init_models, train_model, train_model_stars
+from utils import init_models, train_model_stars
 from typing import List
 
 PREDICTR_ENDPOINT = os.getenv("PREDICTR_ENDPOINT")
@@ -16,12 +16,6 @@ app = FastAPI(title="trainr", docs_url="/")
 app.add_event_handler("startup", init_models)
 
 # class which is expected in the payload while training
-class TrainIn(BaseModel):
-    sepal_length: float
-    sepal_width: float
-    petal_length: float
-    petal_width: float
-    flower_class: str
 
 class StarTrainIn(BaseModel):
   Temperature: float
@@ -45,16 +39,6 @@ def ping():
 # Response: Dict with detail confirming success (200)
 def train_star(data: List[StarTrainIn]):
     train_model_stars(data)
-    # tell predictr to reload the model
-    response = requests.post(f"{PREDICTR_ENDPOINT}/reload_model")
-    return {"detail": "Training successful"}
-
-@app.post("/iris-flower/train", status_code=200)
-# Route to further train the model based on user input in form of feedback loop
-# Payload: FeedbackIn containing the parameters and correct flower class
-# Response: Dict with detail confirming success (200)
-def train(data: List[TrainIn]):
-    train_model(data)
     # tell predictr to reload the model
     response = requests.post(f"{PREDICTR_ENDPOINT}/reload_model")
     return {"detail": "Training successful"}
