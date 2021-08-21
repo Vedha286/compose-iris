@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
-from utils import load_model, predict
+from utils import init_models, predict, predict_stars
 
 # defining the main app
 app = FastAPI(title="predictr", docs_url="/")
@@ -18,7 +18,16 @@ class QueryIn(BaseModel):
 class QueryOut(BaseModel):
     flower_class: str
 
-
+class StarTrainIn(BaseModel):
+  Temperature: float
+  Relative_luminosity: float
+  Relative_radius: float
+  Absolute_magnitude: float
+  Color: str
+  Spectral_class: str
+  
+class StarTrainOut(BaseModel):
+    Type: str
 # Route definitions
 @app.get("/ping")
 # Healthcheck route to ensure that the API is up and running
@@ -34,11 +43,19 @@ def predict_flower(query_data: QueryIn):
     output = {"flower_class": predict(query_data)}
     return output
 
+@app.post("/predict_star", response_model=StarTrainOut, status_code=200)
+# Route to do the prediction using the ML model defined.
+# Payload: QueryIn containing the parameters
+# Response: QueryOut containing the flower_class predicted (200)
+def predict_star(query_data: StarTrainIn):
+    output = {"Risk": predict_stars_score(query_data)}
+    return output
 
-@app.post("/reload_model", status_code=200)
+
+@app.post("/reload_models", status_code=200)
 # Route to reload the model from file
 def reload_model():
-    load_model()
+    init_models()
     output = {"detail": "Model successfully loaded"}
     return output
 

@@ -20,7 +20,8 @@ services:
       - "7777:7777"
     volumes:
       - ./models:/app/models
-
+      - ./data:/app/data
+      
   predictr:
     deploy:
       replicas: 1
@@ -29,3 +30,4 @@ services:
       - "9999:9999"
     volumes:
       - ./models:/app/models
+      - ./data:/app/data

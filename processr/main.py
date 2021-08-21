@@ -20,6 +20,15 @@ class DataIn(BaseModel):
     flower_class: str
 
 
+class StarTrainIn(BaseModel):
+  Temperature: float
+  Relative_luminosity: float
+  Relative_radius: float
+  Absolute_magnitude: float
+  Color: str
+  Spectral_class: str
+  Type: str
+
 # Route definitions
 @app.get("/ping")
 # Healthcheck route to ensure that the API is up and running
@@ -35,6 +44,14 @@ def process(data: List[DataIn]):
     response = requests.post(f"{TRAINR_ENDPOINT}/train", json=processed)
     return {"detail": "Processing successful"}
 
+
+@app.post("/stars/process", status_code=200)
+# Route to take in data, process it and send it for training.
+def process(data: List[DataIn]):
+    processed = process_data(data)
+    # send the processed data to trainr for training
+    response = requests.post(f"{TRAINR_ENDPOINT}/train", json=processed)
+    return {"detail": "Processing successful"}
 
 # Main function to start the app when main.py is called
 if __name__ == "__main__":
