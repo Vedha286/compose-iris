@@ -44,11 +44,13 @@ def init_models():
 def init_stars_model():
     
     if not os.path.isfile(stars_model_file):
+        clf = GaussianNB()
         pickle.dump(clf, open(stars_model_file, "wb"))
+        
         data = download_data()
         X_train, X_test, y_train, y_test = prepare_data(data.itertuples(index=True))
 
-        clf = GaussianNB()
+        
         clf.fit(X_train, y_train)
         if len(data) > 10:
             accuracy = accuracy_score(y_test, clf.predict(X_test))
