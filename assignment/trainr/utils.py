@@ -35,24 +35,20 @@ class StarTrainModify:
     def values(self):
         return [self.Temperature, self.Relative_luminosity, self.Relative_radius, self.Absolute_magnitude, self.Color, self.Spectral_class]
 
-stars_model_file = ".models/stars_nb.pkl"
+stars_model_file = "models/stars_nb.pkl"
 
 # function to train and load the model during startup
 def init_models():
-    if not os.path.isfile(stars_model_file):
-        open(stars_model_file, 'w+')
     init_stars_model()
 
 def init_stars_model():
     
     if not os.path.isfile(stars_model_file):
+        pickle.dump(clf, open(stars_model_file, "wb"))
         data = download_data()
         X_train, X_test, y_train, y_test = prepare_data(data.itertuples(index=True))
- 
+
         clf = GaussianNB()
-        open(stars_model_file, "w+").close()
-        pickle.dump(clf, open(stars_model_file, "w+"))
-        
         clf.fit(X_train, y_train)
         if len(data) > 10:
             accuracy = accuracy_score(y_test, clf.predict(X_test))

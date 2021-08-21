@@ -29,7 +29,7 @@ def ping():
 # Payload: QueryIn containing the parameters
 # Response: QueryOut containing the flower_class predicted (200)
 def predict_star(query_data: StarTrainIn):
-    output = {"Risk": predict_stars_score(query_data)}
+    output = {"Type": predict_stars(query_data)}
     return output
 
 
